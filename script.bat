@@ -21,10 +21,6 @@ sc delete "WindowsDefender"
 :: Disable NIC
 :: devcon.exe disable *PCI\VEN_1022
 
-:: Enable Firewall and Reset Rules
-netsh firewall set opmode ENABLE
-netsh firewall reset
-
 :: Add Local Admin
 net user /Add LAXP Sodapopcan3! 
 net localgroup administrators LAXP /Add  
@@ -50,10 +46,13 @@ wmic product where name="TightVNC" call uninstall
 :: Download Programs
 :: vlc-3.0.18-win32.exe /S /L=1033
 
+:: Enable Firewall and Reset Rules
+netsh firewall set opmode ENABLE
+netsh firewall reset
+
 :: Install Printer
 cscript.exe "prnport.vbs" -a -r IP_192.168.2.2 -h 192.168.2.2 -o raw
 cscript.exe "prnmngr.vbs" -a -p "CyberLab" -m "Generic / Text Only" -r "IP_192.168.2.2"
-
 
 :: Install Python, move NewClient.py file and run Heartbeat Python Script
 cd %~dp0
