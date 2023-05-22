@@ -56,6 +56,7 @@ cscript.exe "prnmngr.vbs" -a -p "CyberLab" -m "Generic / Text Only" -r "IP_192.1
 
 
 :: Install Python, move NewClient.py file and run Heartbeat Python Script
+cd %~dp0
 msiexec /i python-2.7.msi /passive
 copy NewClient.py C:\Python27
 cd C:\Python27
