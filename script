@@ -1,0 +1,32 @@
+REM Disable NIC
+netsh interface set interface “Ethernet 0” disable
+
+REM Enable Firewall
+netsh firewall set opmode ENABLE
+
+REM Add Local Admin
+net user /Add LAXP Sodapopcan03! 
+net localgroup administrators LAXP /Add  
+net user LAXP /Active:yes
+
+REM Delete User Accounts
+net user ellenripley Sodapopcan03! 
+net localgroup administrators ellenripley /delete  
+net user ellenripley /Active:no
+net user vader Sodapopcan03! 
+net localgroup administrators vader /delete  
+net user vader /Active:no
+net user Me Sodapopcan03! 
+net localgroup administrators Me /delete  
+net user Me /Active:no
+
+REM Delete Known Malicious Folders
+cd Windows/System32
+del Exploits
+del Cortana
+
+REM Disable SMBv1
+powershell.exe "Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol"
+
+REM Uninstall TightVNC
+wmic product where name="TightVNC" call uninstall
