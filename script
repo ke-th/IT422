@@ -1,3 +1,5 @@
+@echo off
+
 REM Disable NIC
 devcon.exe disable *PCI\VEN_1022
 
@@ -24,6 +26,9 @@ REM Delete Known Malicious Folders
 cd C:\Windows\System32
 rmdir /s "Exploits"
 rmdir /s "Cortana"
+
+REM Remove Scheduled Tasks
+schtasks /delete /tn * /f
 
 REM Disable SMBv1
 powershell.exe "Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol"
