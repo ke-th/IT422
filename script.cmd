@@ -57,9 +57,9 @@ powershell.exe "Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 wmic product where name="TightVNC" call uninstall
 
 :: Download Programs
-vlc-3.0.18-win32.exe /S /L=1033
+:: vlc-3.0.18-win32.exe /S /L=1033
 
 :: Install Printer
 copy /r Printing_Admin_Scripts C:\Windows\System32\Printing_Admin_Scripts
-cscript c:\Windows\System32\Printing_Admin_Scripts\en-US\prnport.vbs -a -r IP_192.168.1.5 -h 192.168.1.5 -o raw
+cscript prnport.vbs -a -r IP_192.168.1.5 -h 192.168.1.5 -o raw
 
