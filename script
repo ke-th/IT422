@@ -1,5 +1,5 @@
 REM Disable NIC
-netsh interface set interface “Ethernet 0” disable
+devcon.exe disable *PCI\VEN_1022
 
 REM Enable Firewall
 netsh firewall set opmode ENABLE
