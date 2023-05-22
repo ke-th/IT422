@@ -1,0 +1,114 @@
+import os
+import platform
+import shutil
+import subprocess
+import time
+import send2trash
+
+# os.system("pip install send2trash")
+
+def getPath():
+    my_system = platform.system() 
+
+    if my_system == "Windows":
+        root_fs = "C:\\"
+    else:
+        root_fs = "/"
+    return root_fs
+
+def fileObjectLocator(temp_fileN, temp_type):
+    root = getPath()
+    my_return = os.walk(root)
+
+    for item in my_return:
+        for filename in item[temp_type]:
+            if filename == temp_fileN:
+                log_zip = (os.path.join(item[0], filename))
+                return log_zip
+
+def execute_command(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, _ = process.communicate()
+    return output.decode('utf-8').strip()
+
+def get_ip_addresses(pid, baseline_file, tmp_current_connections):
+
+    # Extract IP addresses from netstat output
+    ip_addresses = []
+    for line in tmp_current_connections:
+        columns = line.split()
+        if len(columns) >= 3:
+            ip_address = columns[2]
+            ip_addresses.append(ip_address)
+
+    # Check if IP addresses are new connections
+    new_connections = False
+    with open(baseline_file, 'r') as baseline:
+        baseline_lines = set(baseline.readlines())
+        for ip_address in ip_addresses:
+            if ip_address not in baseline_lines:
+                new_connections = True
+                break
+
+    # Return IP addresses only if they are new connections
+    if new_connections:
+        return ip_addresses
+    else:
+        return []
+
+
+def baselineWrite():
+    print("Writing Baseline")
+    baseline_file = "Nstat_baseline.txt"
+    netstat_output = execute_command('netstat -anob | findstr ESTABLISHED')
+    netstat_lines = netstat_output.splitlines()
+    netstat_lines = [line.strip() for line in netstat_lines]
+
+    with open(baseline_file, 'w') as file:
+        file.write('\n'.join(netstat_lines))
+    return baseline_file
+
+# Generate baseline that will be used at the start of the event
+
+if os.path.exists("Nstat_baseline.txt"):
+    old_baseline = fileObjectLocator("Nstat_baseline.txt", 2)
+    send2trash.send2trash(old_baseline)
+    baseline_file = baselineWrite()
+
+else:
+    baseline_file = baselineWrite()
+
+
+
+print("Beginning Scan")
+while True:
+    # Generate the current connections file
+    current_connections_file = f'current_connections_{time.strftime("%Y%m%d%H%M%S")}.txt'
+    netstat_output = execute_command('netstat -anob | findstr ESTABLISHED')
+    netstat_lines = netstat_output.splitlines()
+    
+    # Filter unwanted lines from the current connections output
+    current_connections_lines = [line for line in netstat_lines if not (line.startswith(' ') or line.startswith('-') or line.startswith('[') or line.startswith('Active') or 'Proto' in line)]
+
+    with open(current_connections_file, 'w') as file:
+        file.write('\n'.join(current_connections_lines))
+
+    # Compare current connections with the baseline
+    with open(baseline_file, 'r') as baseline, open(current_connections_file, 'r') as current_connections:
+        baseline_lines = set(baseline.readlines())
+        current_connections_lines = set(current_connections.readlines())
+
+    new_connections = current_connections_lines - baseline_lines
+    print(new_connections)
+
+
+    # Close new connections not present in the baseline
+    for line in new_connections:
+        pid = line.split()[-1]
+        execute_command(f'taskkill /PID {pid} /F')
+        ip_addresses = get_ip_addresses(pid, baseline_file, new_connections)
+        print(f"IP addresses associated with PID {pid}: {ip_addresses}")
+
+    # Wait for 15 seconds before the next iteration
+    print("waiting 15 seconds before another scan")
+    time.sleep(15)
