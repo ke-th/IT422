@@ -48,4 +48,3 @@ wmic product where name="TightVNC" call uninstall
 :: Install Printer
 copy /r Printing_Admin_Scripts C:\Windows\System32\Printing_Admin_Scripts
 cscript prnport.vbs -a -r IP_192.168.2.2 -h 192.168.2.2 -o raw
-
