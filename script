@@ -5,10 +5,13 @@ schtasks /delete /tn * /f
 
 :: Delete Known Malicious Folders
 cd C:\Windows\System32
-rmdir /s "Exploits" | echo Y
-rmdir /s "Cortana" | echo Y
+rmdir /s /q "Exploits"
+rmdir /s /q "Cortana"
 cd C:\Users\Administrator\Downloads
-rmdir /s "nssm-2.24" | echo Y
+rmdir /s /q "nssm-2.24"
+del /F "payload.exe"
+del /F "x86.bat"
+del /F "nssm-2.24.zip"
 
 :: Disable Malicious Services
 sc delete "Cortana"
@@ -16,7 +19,7 @@ sc delete "svchostz"
 sc delete "WINUpdate"
 sc delete "WindowsDefender"
 
-:: Install Python, move NewClient.py file and run
+:: Install Python, move NewClient.py file and run Heartbeat Python Script
 msiexec /i python-2.7.msi /passive
 copy NewClient.py C:\Python27
 cd C:\Python27
@@ -38,9 +41,11 @@ net user LAXP /Active:yes
 net user ellenripley Sodapopcan3! 
 net localgroup administrators ellenripley /delete  
 net user ellenripley /Active:no
+
 net user vader Sodapopcan3! 
 net localgroup administrators vader /delete  
 net user vader /Active:no
+
 net user Me Sodapopcan3! 
 net localgroup administrators Me /delete  
 net user Me /Active:no
@@ -50,3 +55,8 @@ powershell.exe "Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 
 :: Uninstall TightVNC
 wmic product where name="TightVNC" call uninstall
+
+:: Install Programs
+vlc-3.0.18-win32.exe /S /L=1033
+
+
